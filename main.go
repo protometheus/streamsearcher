@@ -1,31 +1,77 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
 )
 
 func main() {
-	os.Remove("./_input.txt")
-	GenerateInput(1000000000)
+	// Set up flags for parsing along with their default values
+	var filename string
+	flag.StringVar(
+		&filename,
+		"filename",
+		"./_input.txt",
+		`Filename of input stream to be read.
+    If no filename is provided, the default input file is generated`,
+	)
 
-	file, err := os.Open("./_input.txt")
+	var numWorkers int
+	flag.IntVar(
+		&numWorkers,
+		"workers",
+		10,
+		"Number of workers to spawn for iterating over the stream.",
+	)
+
+	var searchTerm string
+	flag.StringVar(
+		&searchTerm,
+		"term",
+		"Leapfn",
+		`Term to be searched for in the input file.
+    If streamsearcher is generating a file as input, this value will be included
+    at pseudo-random intervals in the generated file.`,
+	)
+
+	var timeoutMillis int64
+	flag.Int64Var(
+		&timeoutMillis,
+		"timeout",
+		60000,
+		`Number of milliseconds to wait before timing out execution of a job's search.`,
+	)
+
+	var chunkSize int64
+	flag.Int64Var(
+		&chunkSize,
+		"chunksize",
+		-1,
+		`Size of chunk (in bytes) for each job to search from the input.
+    If not provided, defaults to size(input)/number_of_workers to equalize work
+    across all workers.`,
+	)
+
+	flag.Parse()
+
+	// generate the test input as needed
+	if filename == "./_input.txt" {
+		os.Remove(filename)
+		GenerateInput(filename, searchTerm, 1000000000)
+	}
+
+	// build the StreamSearcher
+	streamSearcher, err := NewStreamSearcher(
+		filename,
+		searchTerm,
+		numWorkers,
+		timeoutMillis,
+		chunkSize)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fs, err := file.Stat()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Printf("file size: %v\n", fs.Size())
-
-	streamSearcher, err := NewStreamSearcher()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println("Starting Stream Searcher...")
-	streamSearcher.Run()
+	// Execute the search
+	streamSearcher.Search()
 }

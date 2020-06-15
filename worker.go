@@ -4,68 +4,92 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"log"
 	"time"
 )
 
-type WorkerOutput struct {
-	id        int64
-	elapsed   float64
-	bytesRead int
-}
-
-// Workers perform the actual searching for the StreamSearcher.
+// A Worker performs the actual searching for the StreamSearcher.
 // A single Worker will iterate over the jobs Queue, pull one off,
 // and attempt to read that job's chunk of the file.
 func Worker(ss *StreamSearcher) {
 	for job := range ss.jobs {
 		func() {
-			defer ss.CompleteJob()
+			// mark the job as complete at the end of its execution
+			defer ss.CompleteJob(job)
 
+			// get a context with a timeout
 			ctx, cancelFunc := context.WithTimeout(
 				context.Background(),
-				time.Duration(5000000)*time.Nanosecond,
+				time.Duration(ss.timeoutMillis)*time.Millisecond,
 			)
 
-			output := make(chan WorkerOutput, 1)
-			go func(output chan WorkerOutput) {
+			// make the ouput a channel so we can wait to see what arrives first:
+			// - the job outputs a response
+			// - the worker times out
+			// Must be done in a goroutine to avoid deadlock.
+			output := make(chan JobOutput, 1)
+			go func(output chan JobOutput) {
+				// Call the context's cancel function regardless of success in execution
+				// Same goes for the closing of channels.
 				defer cancelFunc()
+				defer close(output)
+
+				// start the timer
 				start := time.Now()
 
+				// Read into the buffer
 				buffer := make([]byte, ss.chunkSize)
 				_, err := ss.file.ReadAt(buffer, job.startByte)
 				if err != nil && err != io.EOF {
-					log.Println(err)
+					output <- JobOutput{
+						id:        job.id,
+						err:       err,
+						bytesRead: 0,
+						elapsed:   0,
+					}
 					return
 				}
 
-				b := bytes.Index(buffer, []byte("Leapfn"))
+				// Get the index of the search term if it exists.
+				// Note: The number of bytes read is not exactly equal to
+				// the number of bytes until the index of the search term.
+				// This is because the Index() may read the same bytes twice.
+				// This is known; the Index() function is known to outperform
+				// the naive iteration approach, especially for large strings.
+				b := int64(bytes.Index(buffer, []byte(ss.searchTerm)))
 				elapsed := time.Since(start).Seconds()
-				output <- WorkerOutput{
+				output <- JobOutput{
 					id:        job.id,
+					err:       nil,
 					bytesRead: b,
 					elapsed:   elapsed,
 				}
 
-				close(output)
 			}(output)
 
+			// Based on whatever channel responds first,
+			// set the job's status, elapsed, and bytesRead
 			select {
-			case workerOutput := <-output:
-				// go func() { ss.outputs <- workerOutput }()
-				if workerOutput.bytesRead < 0 {
-					log.Printf("Job %v did not find the needle", workerOutput.id)
-				} else {
-					log.Printf("Found needle in %v bytes read by job %v in %v secs \n",
-						workerOutput.bytesRead,
-						workerOutput.id,
-						workerOutput.elapsed,
-					)
-				}
 			case <-ctx.Done():
-				log.Printf("Job %v timed out\n", job.id)
+				job.status = TIMEOUT
+				job.elapsed = 0
+				job.bytesRead = 0
+				return
+			case jobOutput := <-output:
+				// This is where error handling would happen. The instructions said to
+				// only print output, so nothing is done with the job's error
+				if jobOutput.bytesRead < 0 || jobOutput.err != nil {
+					job.status = TIMEOUT
+					job.elapsed = 0
+					job.bytesRead = 0
+					return
+				} else {
+					// Successful Execution
+					job.status = SUCCESS
+					job.elapsed = jobOutput.elapsed
+					job.bytesRead = jobOutput.bytesRead
+					return
+				}
 			}
-
 		}()
 	}
 }

@@ -6,9 +6,11 @@ import (
 	"time"
 )
 
-// GenerateInput creates some randomized input with "Leapfn"
-// sprinkled in randomly
-func GenerateInput(length int) {
+const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+// GenerateInput creates some randomized input with the searchTerm
+// sprinkled in pseudo-randomly
+func GenerateInput(filename, searchTerm string, length int) {
 	randomizer := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	// pick two random numbers and combine them
@@ -17,8 +19,7 @@ func GenerateInput(length int) {
 	q := randomizer.Intn(1500) + 53
 	pq := p * q
 
-	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	needle := []byte("Leapfn")
+	needle := []byte(searchTerm)
 	needleLen := len(needle)
 
 	b := make([]byte, length)
@@ -38,5 +39,5 @@ func GenerateInput(length int) {
 		}
 	}
 
-	ioutil.WriteFile("_input.txt", b, 0644)
+	ioutil.WriteFile(filename, b, 0644)
 }
