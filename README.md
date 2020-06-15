@@ -42,6 +42,12 @@ In order to complete this assignment, I made certain assumptions.
   `chunksize` flag is provided, then the number of jobs will equal:
   `fileSize/chunkSize`. This breaks the requirement of the instructions,
   but it more practical and realistic in terms of general solutions.
+  
+- The 'Bytes Read' value is actually the number of bytes until the Index is found: 
+  In lieu of iterating over the buffer and manually looking for the search term, the 
+  `bytes.Index()` function is used to return the index of the first appearance of the term. 
+  This is because Go has optimized algorithms to search byte arrays for values. 
+  Any manual solution involving a full iteration is likely much worse in performance.
 
 - Obvious error handling: Go's error handling paradigm means
   most well-written functions are of the type `func(...) (..., error)`. Error
