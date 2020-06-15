@@ -23,10 +23,11 @@ For help with flags, run `./streamsearcher --help` or `./streamsearcher -h`.
 Flags include:
 - `filename`: The name of the file to be used as input for searching. (`./_input.txt`)
 - `term`: The term to search for. If input data is generated, this term is
-          interpolated throughout the generated input. (`Leapfn`)
+          interpolated throughout the generated input. (`Lpfn`)
 - `workers`: Number of workers to spawn (`10`)
 - `timeout`: Number of seconds before jobs should timeout (`60`)
-- `chunksize`: Number of bytes to be searched by each job.
+- `chunksize`: Number of bytes to be searched by each job. (Determined by file size)
+- `genfilesize`: Size of the generated file input to be in bytes (`1000000000`)
 
 ## Assumptions
 In order to complete this assignment, I made certain assumptions.
@@ -41,7 +42,7 @@ In order to complete this assignment, I made certain assumptions.
   each worker is only given 1 job. That is not a requirement, however; if the
   `chunksize` flag is provided, then the number of jobs will equal:
   `fileSize/chunkSize`. This breaks the requirement of the instructions,
-  but it more practical and realistic in terms of general solutions.
+  but is more practical and realistic in terms of job/worker queue implementations.
 
 - Obvious error handling: Go's error handling paradigm means
   most well-written functions are of the type `func(...) (..., error)`. Error
@@ -49,6 +50,10 @@ In order to complete this assignment, I made certain assumptions.
   was no explanation of what to do with errors other than to say the job failed.
   Under normal circumstances, errors would be Queued out the same way the job's
   output their data.
+
+- The Default Timeout is 1s not 60s: The time it takes for the jobs to complete
+  is exponentially faster than it takes for the random file to be generated.
+  The default is lower to take that into account.
 
 ## Initial Instructions
 Please complete a code exercise using your own workspace, IDE, references, etc. This should take approximately a few hours to complete, though feel free to take as much time as you need, as long as you're happy with the result. Your code will be evaluated based on (in this order): simplicity, readability, code style, use of best practices, efficiency, and thoughtful error handling and logging.
