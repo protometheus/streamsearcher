@@ -18,8 +18,7 @@ pseudo-random data as well as needles to search for. It will then attempt to
 find the needles by spinning off workers and jobs, which report their status
 as they complete.
 
-## Help
-For help with flags, run `./streamsearcher --help` or `./streamsearcher -h`.
+## Flags
 Flags include:
 - `filename`: The name of the file to be used as input for searching. (`./_input.txt`)
 - `term`: The term to search for. If input data is generated, this term is
@@ -28,6 +27,8 @@ Flags include:
 - `timeout`: Number of seconds before jobs should timeout (`60`)
 - `chunksize`: Number of bytes to be searched by each job. (Determined by file size)
 - `genfilesize`: Size of the generated file input to be in bytes (`1000000000`)
+
+For help with flags, run `./streamsearcher --help` or `./streamsearcher -h`.
 
 ## Assumptions
 In order to complete this assignment, I made certain assumptions.
@@ -43,7 +44,7 @@ In order to complete this assignment, I made certain assumptions.
   `chunksize` flag is provided, then the number of jobs will equal:
   `fileSize/chunkSize`. This breaks the requirement of the instructions,
   but is more practical and realistic in terms of job/worker queue implementations.
-  
+
 - The 'Bytes Read' value is actually the number of bytes until the Index is found:
   In lieu of iterating over the buffer and manually looking for the search term, the
   `bytes.Index()` function is used to return the index of the first appearance of the term.
