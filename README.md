@@ -3,9 +3,10 @@ Go lib that searches a stream for a phrase and outputs its findings. Uses a
 Job/Worker queue implementation to utilize concurrency and optimize performance.
 
 ## Build
-Run `sh ./build.sh` to build the executable.
+You will need to have Go 1.11+ running for streamsearcher to build and run.
+When you have Go downloaded, Run `sh ./build.sh` to build the executable.
 
-Alternatively, run `go build -o streamsearcher *.go` and then run with
+Alternatively, run `go build -o streamsearcher *.go`
 
 ## Run
 To run the StreamSearcher, build the executable then run
