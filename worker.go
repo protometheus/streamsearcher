@@ -78,7 +78,7 @@ func Worker(ss *StreamSearcher) {
 				// This is where error handling would happen. The instructions said to
 				// only print output, so nothing is done with the job's error
 				if jobOutput.bytesRead < 0 || jobOutput.err != nil {
-					job.status = TIMEOUT
+					job.status = FAILURE
 					job.elapsed = 0
 					job.bytesRead = 0
 					return

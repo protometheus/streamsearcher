@@ -39,7 +39,9 @@ func (j Job) String() string {
 	return fmt.Sprintf("%v %v %v", j.elapsed, j.bytesRead, j.status)
 }
 
-// JobOutput represents the output of a job
+// JobOutput represents the output of a job.
+// It has similar fields but is separated here because in the future,
+// this is likely to have much different fields.
 type JobOutput struct {
 	id        int64
 	err       error
