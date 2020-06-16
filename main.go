@@ -73,7 +73,7 @@ func main() {
 	flag.Parse()
 
 	// generate the test input as needed
-	if filename == "./_input.txt" {
+	if filename == defaultFilename {
 		os.Remove(filename)
 		GenerateInput(filename, searchTerm, generatedFileSize)
 	}
