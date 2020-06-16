@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
@@ -57,10 +56,8 @@ func NewStreamSearcher(filename, searchTerm string, jobWorkers int, timeoutMilli
 }
 
 // Search begins the StreamSearcher's search for the searchTerm
-// in the file.
+// in the file. Enqueues each searchable chunk as a Job on a Worker Queue.
 func (ss *StreamSearcher) Search() {
-	ss.ctx = context.Background()
-
 	// For each job, we enqueue it.
 	// Note: If we had an infinite stream, this would be an infinite loop
 	// which would listen for non-EOF of input
@@ -71,7 +68,6 @@ func (ss *StreamSearcher) Search() {
 		j := &Job{
 			id:        int64(i),
 			startByte: int64(i) * ss.chunkSize,
-			endByte:   int64(i+1) * (ss.chunkSize - 1),
 			status:    SUCCESS,
 		}
 
