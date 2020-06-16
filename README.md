@@ -36,7 +36,8 @@ In order to complete this assignment, I made certain assumptions.
   be able to accept an infinite input, the test input is on a generated file.
   However, this does not change the implementation; streams (Readers) in
   Go are modular, meaning the only change necessary from using input files to
-  input streams is how the input is opened. All other logic works the same.
+  input streams is how the input is opened. The `file.ReadAt` call would be replaced 
+  with a `bytes.Reader`. All other logic works the same.
 
 - The number of Jobs is equal to the number of Workers: The instructions say
   that only 11 lines should be printed, 1 for each worker. Because of this,
