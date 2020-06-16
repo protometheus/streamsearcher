@@ -24,8 +24,8 @@ Flags include:
 - `term`: The term to search for. If input data is generated, this term is
           interpolated throughout the generated input. (`Lpfn`)
 - `workers`: Number of workers to spawn (`10`)
-- `timeout`: Number of seconds before jobs should timeout (`60`)
-- `chunksize`: Number of bytes to be searched by each job. (Determined by file size)
+- `timeout`: Number of milliseconds before jobs should timeout (`1000`)
+- `chunksize`: Number of bytes to be searched by each job. (determined by file input size)
 - `genfilesize`: Size of the generated file input to be in bytes (`1000000000`)
 
 For help with flags, run `./streamsearcher --help` or `./streamsearcher -h`.
@@ -36,8 +36,8 @@ In order to complete this assignment, I made certain assumptions.
   be able to accept an infinite input, the test input is on a generated file.
   However, this does not change the implementation; streams (Readers) in
   Go are modular, meaning the only change necessary from using input files to
-  input streams is how the input is opened. The `file.ReadAt` call would be replaced 
-  with a `bytes.Reader`. All other logic works the same.
+  input streams is how the input is opened. The `file.ReadAt` call would be replaced
+  with a `bytes.Reader.ReadAt`. All other logic works the same.
 
 - The number of Jobs is equal to the number of Workers: The instructions say
   that only 11 lines should be printed, 1 for each worker. Because of this,
@@ -53,8 +53,7 @@ In order to complete this assignment, I made certain assumptions.
   Any manual solution involving a full iteration is likely much worse in performance.
 
 - Obvious error handling: Go's error handling paradigm means
-  most well-written functions are of the type `func(...) (..., error)`. Error
-  handling is baked into how good Go code is written. Here, however, there
+  most well-written functions are of the type `func(...) (..., error)`. However, there
   was no explanation of what to do with errors other than to say the job failed.
   Under normal circumstances, errors would be Queued out the same way the job's
   output their data.
