@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 )
 
@@ -21,22 +20,21 @@ const (
 	FAILURE Status = "FAILURE"
 )
 
-// A Job is
+// A Job represents a single chunk of data to be searched.
+// The startByte is the first byte that will be read from the stream.
 type Job struct {
 	id        int64
 	startByte int64
-	endByte   int64
 	bytesRead int64
 	elapsed   float64
 	status    Status
-	ctx       *context.Context
 }
 
 func (j Job) String() string {
 	// if the status was not SUCCESS,
 	// hide the elapsed and bytes Read
 	if j.status != SUCCESS {
-		return fmt.Sprintf("    %v ", j.status)
+		return fmt.Sprintf("\t\t%v", j.status)
 	}
 	return fmt.Sprintf("%v %v %v", j.elapsed, j.bytesRead, j.status)
 }

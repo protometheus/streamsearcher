@@ -21,7 +21,6 @@ type StreamSearcher struct {
 	timeoutMillis int64
 	completedJobs Queue
 	wg            *sync.WaitGroup
-	ctx           context.Context
 }
 
 // NewStreamSearcher creates a new StreamSearcher with the given filename.

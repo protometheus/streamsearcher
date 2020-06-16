@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-rm ./streamsearcher
+rm -f ./streamsearcher ./_input.txt
 go build -o streamsearcher *.go
