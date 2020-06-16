@@ -82,6 +82,7 @@ func (ss *StreamSearcher) Search() {
 		go Worker(ss)
 	}
 
+	// wait for the jobs to finish execution
 	ss.wg.Wait()
 
 	// gather final statistics
@@ -93,6 +94,7 @@ func (ss *StreamSearcher) Search() {
 	for idx := 0; idx < numJobs; idx++ {
 		select {
 		case j := <-ss.completedJobs:
+			// only add successful jobs to analytics
 			if j.status == SUCCESS {
 				totalBytes += j.bytesRead
 				totalElapsed += j.elapsed
@@ -100,6 +102,7 @@ func (ss *StreamSearcher) Search() {
 		}
 	}
 
+	// calculate average bytes_read/s rate for successful jobs
 	var rate float64
 	if totalElapsed != 0 {
 		rate = float64(totalBytes) / totalElapsed
